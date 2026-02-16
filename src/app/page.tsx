@@ -344,7 +344,14 @@ function ValueItem({ title, description }: { title: string, description: string 
     )
 }
 
-function FeatureCard({ icon, title, description, delay }: any) {
+interface FeatureCardProps {
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+    delay: number;
+}
+
+function FeatureCard({ icon, title, description, delay }: FeatureCardProps) {
     return (
         <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -362,7 +369,14 @@ function FeatureCard({ icon, title, description, delay }: any) {
     );
 }
 
-function TestimonialCard({ quote, author, role, delay }: any) {
+interface TestimonialCardProps {
+    quote: string;
+    author: string;
+    role: string;
+    delay: number;
+}
+
+function TestimonialCard({ quote, author, role, delay }: TestimonialCardProps) {
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}

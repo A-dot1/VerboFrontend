@@ -48,7 +48,7 @@ export default function SettingsPage() {
         updateUser({
             firstName: formData.firstName,
             lastName: formData.lastName,
-        } as never);
+        });
         setIsSaving(false);
     };
 

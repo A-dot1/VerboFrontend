@@ -81,7 +81,7 @@ function FooterLink({ href, children }: { href: string, children: React.ReactNod
 
 function SocialIcon({ icon }: { icon: React.ReactNode }) {
     return (
-        <a href="#" className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-primary-500 hover:border-primary-200 transition-all">
+        <a href="#" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-primary-500 hover:border-primary-200 transition-all">
             {icon}
         </a>
     )

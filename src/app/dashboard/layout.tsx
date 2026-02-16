@@ -1,9 +1,9 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useCallback, useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { useAuthStore } from "@/store/auth.store";
-import { Bell, User } from "lucide-react";
+import { Bell, Menu, User } from "lucide-react";
 import Link from "next/link";
 import { ROUTES } from "@/constants/routes";
 
@@ -13,24 +13,36 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const { user } = useAuthStore();
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const handleCloseSidebar = useCallback(() => setSidebarOpen(false), []);
 
     return (
         <div className="min-h-screen bg-slate-50">
             {/* Sidebar */}
-            <Sidebar />
+            <Sidebar isOpen={sidebarOpen} onClose={handleCloseSidebar} />
 
             {/* Main Content */}
-            <div className="pl-64 transition-all duration-300">
+            <div className="md:pl-64 transition-all duration-300">
                 {/* Header */}
-                <header className="sticky top-0 z-30 h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6">
-                    <div>
-                        <h2 className="text-lg font-semibold text-slate-900">
-                            Welcome back
-                            {user?.firstName && `, ${user.firstName}`}
-                        </h2>
-                        <p className="text-sm text-slate-500">
-                            Keep up the great work!
-                        </p>
+                <header className="sticky top-0 z-30 h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6">
+                    <div className="flex items-center gap-3">
+                        {/* Mobile hamburger */}
+                        <button
+                            onClick={() => setSidebarOpen(true)}
+                            className="md:hidden p-2 -ml-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                            aria-label="Open menu"
+                        >
+                            <Menu className="w-5 h-5" />
+                        </button>
+                        <div>
+                            <h2 className="text-lg font-semibold text-slate-900">
+                                Welcome back
+                                {user?.firstName && `, ${user.firstName}`}
+                            </h2>
+                            <p className="text-sm text-slate-500 hidden sm:block">
+                                Keep up the great work!
+                            </p>
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-4">
@@ -70,7 +82,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </header>
 
                 {/* Page Content */}
-                <main className="p-6">{children}</main>
+                <main className="p-4 md:p-6">{children}</main>
             </div>
         </div>
     );

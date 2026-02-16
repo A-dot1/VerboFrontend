@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,6 +16,7 @@ import {
     ChevronRight,
     LayoutDashboard,
     GraduationCap,
+    X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/constants/routes";
@@ -80,87 +81,123 @@ const bottomNavItems: NavItem[] = [
 
 interface SidebarProps {
     className?: string;
+    isOpen?: boolean;
+    onClose?: () => void;
 }
 
-function Sidebar({ className }: SidebarProps) {
+function Sidebar({ className, isOpen = false, onClose }: SidebarProps) {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const pathname = usePathname();
+
+    // Close sidebar on route change (mobile)
+    useEffect(() => {
+        onClose?.();
+    }, [pathname, onClose]);
 
     const toggleCollapse = () => setIsCollapsed(!isCollapsed);
 
     return (
-        <aside
-            className={cn(
-                "fixed left-0 top-0 h-screen bg-white border-r border-slate-200 flex flex-col z-40 transition-all duration-300",
-                {
-                    "w-64": !isCollapsed,
-                    "w-20": isCollapsed,
-                },
-                className
-            )}
-        >
-            {/* Logo */}
-            <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200">
-                <Link href={ROUTES.DASHBOARD.ROOT} className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-primary-500 flex items-center justify-center">
-                        <BookOpen className="w-5 h-5 text-white" />
-                    </div>
-                    <AnimatePresence>
-                        {!isCollapsed && (
-                            <motion.span
-                                initial={{ opacity: 0, width: 0 }}
-                                animate={{ opacity: 1, width: "auto" }}
-                                exit={{ opacity: 0, width: 0 }}
-                                className="font-bold text-xl text-slate-900 overflow-hidden whitespace-nowrap"
-                            >
-                                Verbo
-                            </motion.span>
-                        )}
-                    </AnimatePresence>
-                </Link>
-            </div>
-
-            {/* Navigation */}
-            <nav className="flex-1 py-4 px-3 overflow-y-auto">
-                <ul className="space-y-1">
-                    {navItems.map((item) => (
-                        <NavLink
-                            key={item.href}
-                            item={item}
-                            isActive={pathname === item.href}
-                            isCollapsed={isCollapsed}
-                        />
-                    ))}
-                </ul>
-            </nav>
-
-            {/* Bottom Navigation */}
-            <div className="py-4 px-3 border-t border-slate-200">
-                <ul className="space-y-1">
-                    {bottomNavItems.map((item) => (
-                        <NavLink
-                            key={item.href}
-                            item={item}
-                            isActive={pathname === item.href}
-                            isCollapsed={isCollapsed}
-                        />
-                    ))}
-                </ul>
-            </div>
-
-            {/* Collapse Toggle */}
-            <button
-                onClick={toggleCollapse}
-                className="absolute -right-3 top-20 w-6 h-6 bg-white border border-slate-200 rounded-full flex items-center justify-center shadow-sm hover:bg-slate-50 transition-colors"
-                aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-                {isCollapsed ? (
-                    <ChevronRight className="w-4 h-4 text-slate-600" />
-                ) : (
-                    <ChevronLeft className="w-4 h-4 text-slate-600" />
+        <>
+            {/* Mobile backdrop */}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                        onClick={onClose}
+                    />
                 )}
-            </button>
-        </aside>
+            </AnimatePresence>
+
+            <aside
+                className={cn(
+                    "fixed left-0 top-0 h-screen bg-white border-r border-slate-200 flex flex-col z-50 transition-all duration-300",
+                    // Desktop: always visible
+                    "max-md:-translate-x-full max-md:w-64",
+                    isOpen && "max-md:translate-x-0",
+                    // Desktop sizing
+                    "md:translate-x-0",
+                    {
+                        "md:w-64": !isCollapsed,
+                        "md:w-20": isCollapsed,
+                    },
+                    className
+                )}
+            >
+                {/* Logo */}
+                <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200">
+                    <Link href={ROUTES.DASHBOARD.ROOT} className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary-500 flex items-center justify-center">
+                            <BookOpen className="w-5 h-5 text-white" />
+                        </div>
+                        <AnimatePresence>
+                            {!isCollapsed && (
+                                <motion.span
+                                    initial={{ opacity: 0, width: 0 }}
+                                    animate={{ opacity: 1, width: "auto" }}
+                                    exit={{ opacity: 0, width: 0 }}
+                                    className="font-bold text-xl text-slate-900 overflow-hidden whitespace-nowrap"
+                                >
+                                    Verbo
+                                </motion.span>
+                            )}
+                        </AnimatePresence>
+                    </Link>
+                    {/* Mobile close button */}
+                    <button
+                        onClick={onClose}
+                        className="md:hidden p-1 text-slate-400 hover:text-slate-600"
+                        aria-label="Close sidebar"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+
+                {/* Navigation */}
+                <nav className="flex-1 py-4 px-3 overflow-y-auto">
+                    <ul className="space-y-1">
+                        {navItems.map((item) => (
+                            <NavLink
+                                key={item.href}
+                                item={item}
+                                isActive={pathname === item.href}
+                                isCollapsed={isCollapsed}
+                            />
+                        ))}
+                    </ul>
+                </nav>
+
+                {/* Bottom Navigation */}
+                <div className="py-4 px-3 border-t border-slate-200">
+                    <ul className="space-y-1">
+                        {bottomNavItems.map((item) => (
+                            <NavLink
+                                key={item.href}
+                                item={item}
+                                isActive={pathname === item.href}
+                                isCollapsed={isCollapsed}
+                            />
+                        ))}
+                    </ul>
+                </div>
+
+                {/* Collapse Toggle - desktop only */}
+                <button
+                    onClick={toggleCollapse}
+                    className="hidden md:flex absolute -right-3 top-20 w-6 h-6 bg-white border border-slate-200 rounded-full items-center justify-center shadow-sm hover:bg-slate-50 transition-colors"
+                    aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                >
+                    {isCollapsed ? (
+                        <ChevronRight className="w-4 h-4 text-slate-600" />
+                    ) : (
+                        <ChevronLeft className="w-4 h-4 text-slate-600" />
+                    )}
+                </button>
+            </aside>
+        </>
     );
 }
 
